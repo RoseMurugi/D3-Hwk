@@ -1,9 +1,10 @@
+
 // @TODO: YOUR CODE HERE!
 // read the data from the csv file 
 
 // set up the defalut views for x and y on page load
 var xView = "poverty";
-var yView = "obesity";
+var yView = "healthcare";
 
 d3.csv(".\\assets\\data\\data.csv").then(function(dataset){
         
@@ -52,7 +53,7 @@ function showVisual(data, xView, yView){
        // I've only cleans a small sample of the data. 
        // you will need to handle the rest
         data.poverty = +d[xView];
-        data.obesity = +d[yView];
+        data.healthcare = +d[yView];
         
     });
 
@@ -64,16 +65,16 @@ var yValues  = data.map(d => parseFloat(d[yView]));
 // use extent to grab the min and max of the selected Scale and Axis
 var xScale = d3.scaleLinear()
             .domain(d3.extent(xValues))
-            .range([margin.right, width+margin.right]);
+            .range([margin.right + 19, width+margin.right]);
 
 var yScale = d3.scaleLinear()
             .domain(d3.extent(yValues))
-            .range([height-40, margin.top]); 
-
+            .range([height-37, margin.top]); 
 
 // Add the x & y Axis
 var xAxis = d3.axisBottom(xScale);
 var yAxis = d3.axisLeft(yScale);
+
 
 
 // add the x & y scales to the index.html <svg> tag 
@@ -84,28 +85,62 @@ svg.append("g")
 
 svg.append("g")
         .attr("class", "yAxis")
-        .attr("transform", `translate(${padding.left}, ${padding.right})`)
+        .attr("transform", `translate(${padding.right}, ${padding.right -4})`)
         .call(yAxis);
 
 // Create the <circle></circle> element 
 
-var scatter = svg.selectAll("circles")
+var scatter = svg.selectAll("circle")
             .data(data)
             .enter()
             .append("circle")
             .attr("cx", d => xScale( d[xView] ))
             .attr("cy", d => yScale( d[yView] ))
-            .attr("r", 10);
+            .attr("r", 10).style("fill", "blue") 
+            .attr("opacity", ".5");
 
-/* data[xView] is the scale that will be 
-    updated on click. You will need to update the bubbles with:
+// text in circles
 
+svg.selectAll("text")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("x", d => xScale( d[xView] ) )
+            .attr("y", d => yScale( d[yView] ) )
+            .attr("font-size", 10)
+            .attr("text-anchor", "middle")
+            .style("fill", "white")
+            .text( d => d.abbr);
+     
+
+// y axis
+// chart group
+var chartGroup = svg.append("g")
+  .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+chartgroup.append("text")
+     .attr("transform", "rotate(-90)")
+     .attr("y", 40 - margin.left)
+     .attr("x", 0 - (height / 2))
+     .attr("dy", "1em")
+     .classed("aText", true)
+     .text("Lacking Healthcare (%)");
+
+// x axis
+chartGroup.append("text")
+     .attr("y", height + margin.bottom/2 - 10)
+     .attr("x", width / 2)
+     .attr("dy", "1em")
+     .classed("aText", true)
+     .text("Poverty Rate (%)");
+/* data[xView] is the name of the scale that will be 
+    the name of the scale that is clicked and updated
+    you will need to update the bubbles with:
     1. Text for state abbr      
     2. Event Handlers 
     3. Labels that the user will click to update the chart 
     4. colors for bubbles and abbr state letters
-
-  */                   
+  */          
  console.log("data", data[xView]);
 
-}
+  }
