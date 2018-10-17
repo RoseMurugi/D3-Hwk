@@ -1,10 +1,10 @@
-
-// @TODO: YOUR CODE HERE!
+// @TODO: YOUR CODE HERE!   
 // read the data from the csv file 
 
 // set up the defalut views for x and y on page load
 var xView = "poverty";
 var yView = "healthcare";
+var places="abbr"
 
 d3.csv(".\\assets\\data\\data.csv").then(function(dataset){
         
@@ -40,8 +40,8 @@ var height = svgHeight - margin.top - margin.bottom;
 // Append svg to the index.html 
 var svg = d3.select("#scatter")
           .append("svg")
-          .attr("width", width)
-          .attr("height", height) 
+          .attr("width", width+15)
+          .attr("height", height+18) 
           .attr("class", "scatter")
           .append("g")
           .attr("tranform", `translate( ${margin.left}, ${margin.top})`);
@@ -50,8 +50,7 @@ var svg = d3.select("#scatter")
 function showVisual(data, xView, yView){
 
     data.map(d =>{
-       // I've only cleans a small sample of the data. 
-       // you will need to handle the rest
+       
         data.poverty = +d[xView];
         data.healthcare = +d[yView];
         
@@ -60,18 +59,22 @@ function showVisual(data, xView, yView){
  // we need to get the min and max of x & y in the dataset to pass to .domain()
 var xValues  = data.map(d => parseFloat(d[xView]));
 var yValues  = data.map(d => parseFloat(d[yView])); 
+// console.log("x",d3.extent(xValues));
+// console.log("y",d3.extent(yValues));
 
 
 // use extent to grab the min and max of the selected Scale and Axis
 var xScale = d3.scaleLinear()
             .domain(d3.extent(xValues))
-            .range([margin.right + 19, width+margin.right]);
+            .range([margin.right+68, width+margin.right]);
+           
 
 var yScale = d3.scaleLinear()
             .domain(d3.extent(yValues))
-            .range([height-37, margin.top]); 
+            .range([height-39, margin.top]);    
 
-// Add the x & y Axis
+
+ //Add the x & y Axis
 var xAxis = d3.axisBottom(xScale);
 var yAxis = d3.axisLeft(yScale);
 
@@ -81,66 +84,66 @@ var yAxis = d3.axisLeft(yScale);
 svg.append("g")
         .attr("class", "xAxis")
         .attr("transform", `translate(${padding.top},  ${height - margin.bottom})`)
-        .call(xAxis);
+        .call(xAxis)
+        // .enter()
+        // .append("text")
+        ;
+
+svg.append("text")             
+    .attr("transform","translate(" + (margin.left*8) + " ," + ( height+13) + ")")
+    .style("text-anchor", "middle")
+    .text(" Poverty Index (%)"); 
+// 100 400
 
 svg.append("g")
         .attr("class", "yAxis")
-        .attr("transform", `translate(${padding.right}, ${padding.right -4})`)
+        .attr("transform", `translate(${padding.right+50}, ${padding.right})`)
         .call(yAxis);
 
-// Create the <circle></circle> element 
+svg.append("text")             
+    // .attr("transform", "rotate(-90)")
+    // .attr("y", 0 - margin.left+40)
+    // .attr("x",0 - (margin.right-10))
+    .attr("transform","translate(" + (margin.right-20) + " ," + ( margin.right+200) + "),rotate(-90)")
+    .style("text-anchor", "middle")
+    .text("No HealthCare(%)"); 
 
-var scatter = svg.selectAll("circle")
+// Create the <circle></circle> element 
+// var places =data.map(d=>parseFloat(d[xView]));
+// console.log(places);
+
+var scatter = svg.selectAll("circles")
             .data(data)
             .enter()
             .append("circle")
             .attr("cx", d => xScale( d[xView] ))
             .attr("cy", d => yScale( d[yView] ))
-            .attr("r", 10).style("fill", "blue") 
-            .attr("opacity", ".5");
-
-// text in circles
-
-svg.selectAll("text")
+            .attr("r", 20)
+            .attr("fill","yellow")
+            .attr('stroke','black')
+            .enter()
             .data(data)
             .enter()
             .append("text")
-            .attr("x", d => xScale( d[xView] ) )
-            .attr("y", d => yScale( d[yView] ) )
-            .attr("font-size", 10)
-            .attr("text-anchor", "middle")
-            .style("fill", "white")
-            .text( d => d.abbr);
+            .attr("dx",  d => xScale( d[xView] )-7)
+            .attr("dy", d => yScale( d[yView] )+5)
+            .attr("font-size","10px")
+            .attr("font-weight","bold")
+            .style("fill", "black")
+            .text(d=>d[places]);
+
+            ;
      
+        
+/* data[xView] is the scale that will be 
+    updated on click. You will need to update the bubbles with:
 
-// y axis
-// chart group
-var chartGroup = svg.append("g")
-  .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-chartgroup.append("text")
-     .attr("transform", "rotate(-90)")
-     .attr("y", 40 - margin.left)
-     .attr("x", 0 - (height / 2))
-     .attr("dy", "1em")
-     .classed("aText", true)
-     .text("Lacking Healthcare (%)");
-
-// x axis
-chartGroup.append("text")
-     .attr("y", height + margin.bottom/2 - 10)
-     .attr("x", width / 2)
-     .attr("dy", "1em")
-     .classed("aText", true)
-     .text("Poverty Rate (%)");
-/* data[xView] is the name of the scale that will be 
-    the name of the scale that is clicked and updated
-    you will need to update the bubbles with:
     1. Text for state abbr      
     2. Event Handlers 
     3. Labels that the user will click to update the chart 
     4. colors for bubbles and abbr state letters
-  */          
+
+  */                   
  console.log("data", data[xView]);
 
-  }
+}
